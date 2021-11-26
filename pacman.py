@@ -8,7 +8,7 @@ class Pacman(pygame.sprite.Sprite):
     direction: int  # направление 0 - стоит, 1 - влево, 2 - вправо, 3 - вверх, 4 - вниз
     ind_image: str
 
-    def __init__(self, x, y, screen=None, direction=0):
+    def __init__(self, x, y, screen=None, direction=1):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load("sprites/pacman_left2.png")
         self.image = pygame.transform.scale(self.image, (25, 25))
@@ -22,6 +22,7 @@ class Pacman(pygame.sprite.Sprite):
         self.rotate = 0
         self.ind_image = "1"
         self.ind_time = 1
+        self.health = 3
 
     def move(self):
         if self.direction == 1:
@@ -61,42 +62,76 @@ class Pacman(pygame.sprite.Sprite):
         if self.screen:
             self.screen.blit(self.image, self.rect)
 
-    # def check_collide(self, objects):
-    #    for obj in objects:
-    #        if pygame.sprite.collide_rect(self.rect, obj.rect):
-    #            if obj.__class__ == Ghost:
-    #                self.direction = 0
-    #                self.game_over = True
-    #            elif obj.__class__ == Seed:
-    #                self.score += obj.points
-    #            elif obj.__class__ == Wall:
-    #                self.direction = 0
+    def check_collide(self, rect, objects):
+        for obj in objects:
+            if pygame.sprite.collide_rect(rect, obj.rect):
+                if obj.__class__ == "Ghost":
+                    self.direction = 0
+                    self.health -= 1
+                    if self.health == 0:
+                        self.death_animation()
+                elif obj.__class__ == "Seed":
+                    self.score += obj.points
+                elif obj.__class__ == "Wall":
+                    return 0
+        return 1
 
     def change_image(self, name_image):
         self.image = pygame.image.load(f"sprites/pacman_{name_image}.png")
         self.image = pygame.transform.scale(self.image, (25, 25))
 
+    def change_direction(self, key, objects):
+        if key == pygame.K_a:
+            if self.check_collide((self.rect.x - 1, self.rect.y), objects):
+                self.direction = 1
+        elif key == pygame.K_d:
+            if self.check_collide((self.rect.x + 1, self.rect.y), objects):
+                self.direction = 2
+        elif key == pygame.K_w:
+            if self.check_collide((self.rect.x, self.rect.y - 1), objects):
+                self.direction = 3
+        elif key == pygame.K_s:
+            if self.check_collide((self.rect.x, self.rect.y + 1), objects):
+                self.direction = 4
+
+    def death_animation(self):
+        self.direction = 0
+        self.change_image("up1")
+        update_screen(self, self.screen)
+        time.sleep(0.1)
+        self.change_image("death_1")
+        update_screen(self, self.screen)
+        time.sleep(0.1)
+        self.change_image("death_2")
+        update_screen(self, self.screen)
+        time.sleep(0.1)
+        self.change_image("death_3")
+        update_screen(self, self.screen)
+        time.sleep(0.1)
+        self.change_image("death_4")
+        update_screen(self, self.screen)
+        time.sleep(0.1)
+
+
+def update_screen(pacman, screen):
+    pacman.draw()
+    pygame.display.flip()
+    screen.fill("Black")
+
 
 def main():
-    screen = pygame.display.set_mode(size, pygame.RESIZABLE)
+    screen = pygame.display.set_mode(size)
     pacman = Pacman(size[0] / 2 - 75, size[1] / 2 + 100, screen)
-    while not pacman.game_over:
+    objects = []  # массив объектов
+    game_over = False
+    while not game_over:
         for event in pygame.event.get():
-            pacman.game_over = event.type == pygame.QUIT
+            game_over = event.type == pygame.QUIT
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    pacman.direction = 1
-                elif event.key == pygame.K_d:
-                    pacman.direction = 2
-                elif event.key == pygame.K_w:
-                    pacman.direction = 3
-                elif event.key == pygame.K_s:
-                    pacman.direction = 4
-        pacman.draw()
-        pygame.display.flip()
-        screen.fill("Black")
-    if pacman.game_over:
-        pacman.change_image("")
+                pacman.change_direction(event.key, objects)
+        update_screen(pacman, screen)  # лучше будет вместо pacman вписать objects и там уже рисовать все объекты
+        if pacman.game_over:
+            pacman.death_animation()
 
 
 if __name__ == "__main__":
