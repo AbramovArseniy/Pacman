@@ -24,19 +24,31 @@ class Pacman(pygame.sprite.Sprite):
         self.health = 3
         self.queue_direction = 0
 
-    def move(self):
+    def move(self, objects):
         if self.direction == 1:
-            self.rect.x -= 2
-            self.change_image("left" + self.ind_image)
+            if self.check_collide((self.rect.x - 2, self.rect.y), objects):
+                self.rect.x -= 2
+                self.change_image("left" + self.ind_image)
+            else:
+                self.direction = 0
         elif self.direction == 2:
-            self.rect.x += 2
-            self.change_image("right" + self.ind_image)
+            if self.check_collide((self.rect.x + 2, self.rect.y), objects):
+                self.rect.x += 2
+                self.change_image("right" + self.ind_image)
+            else:
+                self.direction = 0
         elif self.direction == 3:
-            self.rect.y -= 2
-            self.change_image("up" + self.ind_image)
+            if self.check_collide((self.rect.x, self.rect.y - 2), objects):
+                self.rect.y -= 2
+                self.change_image("up" + self.ind_image)
+            else:
+                self.direction = 0
         elif self.direction == 4:
-            self.rect.y += 2
-            self.change_image("down" + self.ind_image)
+            if self.check_collide((self.rect.x, self.rect.y + 2), objects):
+                self.rect.y += 2
+                self.change_image("down" + self.ind_image)
+            else:
+                self.direction = 0
 
         if self.ind_time == 15:
             if self.ind_image == "1":
@@ -57,24 +69,25 @@ class Pacman(pygame.sprite.Sprite):
         self.ind_time += 1
         time.sleep(0.01)
 
-    def draw(self):
-        self.move()
+    def draw(self, objects):
+        self.move(objects)
         if self.screen:
             self.screen.blit(self.image, self.rect)
 
     def check_collide(self, rect, objects):
-        for obj in objects:
-            if pygame.sprite.collide_rect(rect, obj.rect):
-                if obj.__class__ == "Ghost":
-                    self.direction = 0
-                    self.health -= 1
-                    self.death_animation()
-                    if self.health == 0:
-                        self.game_over = True
-                elif obj.__class__ == "Seed":
-                    self.score += obj.points
-                elif obj.__class__ == "Wall":
-                    return 0
+        for ind, obj in enumerate(objects):
+            if ind != 0:
+                if pygame.sprite.collide_rect(rect, obj.rect):
+                    if obj.__class__ == "Ghost":
+                        self.direction = 0
+                        self.health -= 1
+                        self.death_animation()
+                        if self.health == 0:
+                            self.game_over = True
+                    elif obj.__class__ == "Seed":
+                        self.score += obj.points
+                    elif obj.__class__ == "Wall":
+                        return 0
         return 1
 
     def change_image(self, name_image):
@@ -83,22 +96,22 @@ class Pacman(pygame.sprite.Sprite):
 
     def change_direction(self, objects, key=None):
         if key == pygame.K_a or self.queue_direction == 1:
-            if self.check_collide((self.rect.x - 1, self.rect.y), objects):
+            if self.check_collide((self.rect.x - 2, self.rect.y), objects):
                 self.direction = 1
             else:
                 self.queue_direction = 1
         elif key == pygame.K_d or self.queue_direction == 2:
-            if self.check_collide((self.rect.x + 1, self.rect.y), objects):
+            if self.check_collide((self.rect.x + 2, self.rect.y), objects):
                 self.direction = 2
             else:
                 self.queue_direction = 2
         elif key == pygame.K_w or self.queue_direction == 3:
-            if self.check_collide((self.rect.x, self.rect.y - 1), objects):
+            if self.check_collide((self.rect.x, self.rect.y - 2), objects):
                 self.direction = 3
             else:
                 self.queue_direction = 3
         elif key == pygame.K_s or self.queue_direction == 4:
-            if self.check_collide((self.rect.x, self.rect.y + 1), objects):
+            if self.check_collide((self.rect.x, self.rect.y + 2), objects):
                 self.direction = 4
             else:
                 self.queue_direction = 4
