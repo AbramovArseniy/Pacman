@@ -15,14 +15,16 @@ class Pacman(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.first_x = x
+        self.first_y = y
         self.direction = direction
         self.score = 0
         self.screen = screen
-        self.rotate = 0
         self.ind_image = "1"
         self.ind_time = 1
         self.health = 3
         self.queue_direction = 0
+        self.sounds = []
 
     def move(self, objects):
         if self.direction == 1:
@@ -49,10 +51,10 @@ class Pacman(pygame.sprite.Sprite):
                 self.change_image("down" + self.ind_image)
             else:
                 self.direction = 0
-
         if self.ind_time == 15:
             if self.ind_image == "1":
                 self.ind_image = "2"
+                self.sounds[0].play()
             else:
                 self.ind_image = "1"
             self.ind_time = 1
@@ -116,20 +118,28 @@ class Pacman(pygame.sprite.Sprite):
             else:
                 self.queue_direction = 4
 
-    def death_animation(self):
+    def death_animation(self, objects):
+        self.sounds[1].play()
         self.direction = 0
         self.change_image("up1")
-        update_screen(self, self.screen)
-        time.sleep(0.1)
+        update_screen(objects, self.screen)
+        time.sleep(0.2)
         self.change_image("death_1")
-        update_screen(self, self.screen)
-        time.sleep(0.1)
+        update_screen(objects, self.screen)
+        time.sleep(0.2)
         self.change_image("death_2")
-        update_screen(self, self.screen)
-        time.sleep(0.1)
+        update_screen(objects, self.screen)
+        time.sleep(0.2)
         self.change_image("death_3")
-        update_screen(self, self.screen)
-        time.sleep(0.1)
+        update_screen(objects, self.screen)
+        time.sleep(0.2)
         self.change_image("death_4")
-        update_screen(self, self.screen)
-        time.sleep(0.1)
+        update_screen(objects, self.screen)
+        time.sleep(0.5)
+        if self.health != 0:
+            self.game_over = False
+            self.rect.x = self.first_x
+            self.rect.y = self.first_y
+            time.sleep(0.2)
+            self.direction = 1
+
