@@ -2,7 +2,7 @@ import pygame
 
 
 class Text_sprite:
-    def __init__(self, text, screen, x, y, color=(255,255,255), text_size = 20):
+    def __init__(self, text, screen, x, y, color=(255, 255, 255), text_size=20):
         self.__text = str(text)
         self.screen = screen
         self.font = pygame.font.SysFont('Comic Sans MS', 20)
