@@ -9,7 +9,7 @@ size = (600, 700)
 def main():
     screen = pygame.display.set_mode(size)
     pacman = Pacman(size[0] / 2 - 75, size[1] / 2 + 100, screen)
-    objects = [pacman]  # массив объектов
+    objects = [pacman, pacman.score]  # массив объектов
     game_over = False
     pygame.mixer.init()
     pacman.sounds.append(pygame.mixer.Sound("sounds/moving_sounds.mp3"))

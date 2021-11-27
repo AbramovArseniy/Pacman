@@ -1,6 +1,7 @@
 import time
 import pygame
 from func import update_screen
+from Objects.scores import Scores
 
 
 class Pacman(pygame.sprite.Sprite):
@@ -18,13 +19,13 @@ class Pacman(pygame.sprite.Sprite):
         self.first_x = x
         self.first_y = y
         self.direction = direction
-        self.score = 0
         self.screen = screen
         self.ind_image = "1"
         self.ind_time = 1
         self.health = 3
         self.queue_direction = 0
         self.sounds = []
+        self.score = Scores(self.screen, score=0)
 
     def move(self, objects):
         if self.direction == 1:
@@ -87,7 +88,7 @@ class Pacman(pygame.sprite.Sprite):
                         if self.health == 0:
                             self.game_over = True
                     elif obj.__class__ == "Seed":
-                        self.score += obj.points
+                        self.score.change_score(obj.points)
                     elif obj.__class__ == "Wall":
                         return 0
         return 1
@@ -142,4 +143,3 @@ class Pacman(pygame.sprite.Sprite):
             self.rect.y = self.first_y
             time.sleep(0.2)
             self.direction = 1
-
