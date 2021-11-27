@@ -1,5 +1,6 @@
 import time
 import pygame
+from func import update_screen
 
 
 class Pacman(pygame.sprite.Sprite):
@@ -21,6 +22,7 @@ class Pacman(pygame.sprite.Sprite):
         self.ind_image = "1"
         self.ind_time = 1
         self.health = 3
+        self.queue_direction = 0
 
     def move(self):
         if self.direction == 1:
@@ -66,8 +68,9 @@ class Pacman(pygame.sprite.Sprite):
                 if obj.__class__ == "Ghost":
                     self.direction = 0
                     self.health -= 1
+                    self.death_animation()
                     if self.health == 0:
-                        self.death_animation()
+                        self.game_over = True
                 elif obj.__class__ == "Seed":
                     self.score += obj.points
                 elif obj.__class__ == "Wall":
@@ -78,17 +81,42 @@ class Pacman(pygame.sprite.Sprite):
         self.image = pygame.image.load(f"sprites/pacman_{name_image}.png")
         self.image = pygame.transform.scale(self.image, (25, 25))
 
-    def change_direction(self, key, objects):
-        if key == pygame.K_a:
+    def change_direction(self, objects, key=None):
+        if key == pygame.K_a or self.queue_direction == 1:
             if self.check_collide((self.rect.x - 1, self.rect.y), objects):
                 self.direction = 1
-        elif key == pygame.K_d:
+            else:
+                self.queue_direction = 1
+        elif key == pygame.K_d or self.queue_direction == 2:
             if self.check_collide((self.rect.x + 1, self.rect.y), objects):
                 self.direction = 2
-        elif key == pygame.K_w:
+            else:
+                self.queue_direction = 2
+        elif key == pygame.K_w or self.queue_direction == 3:
             if self.check_collide((self.rect.x, self.rect.y - 1), objects):
                 self.direction = 3
-        elif key == pygame.K_s:
+            else:
+                self.queue_direction = 3
+        elif key == pygame.K_s or self.queue_direction == 4:
             if self.check_collide((self.rect.x, self.rect.y + 1), objects):
                 self.direction = 4
+            else:
+                self.queue_direction = 4
 
+    def death_animation(self):
+        self.direction = 0
+        self.change_image("up1")
+        update_screen(self, self.screen)
+        time.sleep(0.1)
+        self.change_image("death_1")
+        update_screen(self, self.screen)
+        time.sleep(0.1)
+        self.change_image("death_2")
+        update_screen(self, self.screen)
+        time.sleep(0.1)
+        self.change_image("death_3")
+        update_screen(self, self.screen)
+        time.sleep(0.1)
+        self.change_image("death_4")
+        update_screen(self, self.screen)
+        time.sleep(0.1)
