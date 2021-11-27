@@ -1,8 +1,6 @@
 import time
 import pygame
 
-size = (600, 700)
-
 
 class Pacman(pygame.sprite.Sprite):
     direction: int  # направление 0 - стоит, 1 - влево, 2 - вправо, 3 - вверх, 4 - вниз
@@ -94,45 +92,3 @@ class Pacman(pygame.sprite.Sprite):
             if self.check_collide((self.rect.x, self.rect.y + 1), objects):
                 self.direction = 4
 
-    def death_animation(self):
-        self.direction = 0
-        self.change_image("up1")
-        update_screen(self, self.screen)
-        time.sleep(0.1)
-        self.change_image("death_1")
-        update_screen(self, self.screen)
-        time.sleep(0.1)
-        self.change_image("death_2")
-        update_screen(self, self.screen)
-        time.sleep(0.1)
-        self.change_image("death_3")
-        update_screen(self, self.screen)
-        time.sleep(0.1)
-        self.change_image("death_4")
-        update_screen(self, self.screen)
-        time.sleep(0.1)
-
-
-def update_screen(pacman, screen):
-    pacman.draw()
-    pygame.display.flip()
-    screen.fill("Black")
-
-
-def main():
-    screen = pygame.display.set_mode(size)
-    pacman = Pacman(size[0] / 2 - 75, size[1] / 2 + 100, screen)
-    objects = []  # массив объектов
-    game_over = False
-    while not game_over:
-        for event in pygame.event.get():
-            game_over = event.type == pygame.QUIT
-            if event.type == pygame.KEYDOWN:
-                pacman.change_direction(event.key, objects)
-        update_screen(pacman, screen)  # лучше будет вместо pacman вписать objects и там уже рисовать все объекты
-        if pacman.game_over:
-            pacman.death_animation()
-
-
-if __name__ == "__main__":
-    main()
