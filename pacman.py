@@ -2,6 +2,7 @@ import time
 import pygame
 from func import update_screen
 from Objects.scores import Scores
+from Objects.health import Health
 
 
 class Pacman(pygame.sprite.Sprite):
@@ -22,10 +23,11 @@ class Pacman(pygame.sprite.Sprite):
         self.screen = screen
         self.ind_image = "1"
         self.ind_time = 1
-        self.health = 3
+        self.ind_health = 3
+        self.health = Health(self.screen, self.image)
         self.queue_direction = 0
         self.sounds = []
-        self.score = Scores(self.screen, score=0)
+        self.score = Scores(self.screen, score=5000000)
 
     def move(self, objects):
         if self.direction == 1:
@@ -74,6 +76,7 @@ class Pacman(pygame.sprite.Sprite):
 
     def draw(self, objects):
         self.move(objects)
+        self.health.draw(self.ind_health)
         if self.screen:
             self.screen.blit(self.image, self.rect)
 
@@ -83,10 +86,7 @@ class Pacman(pygame.sprite.Sprite):
                 if pygame.sprite.collide_rect(rect, obj.rect):
                     if obj.__class__ == "Ghost":
                         self.direction = 0
-                        self.health -= 1
-                        self.death_animation()
-                        if self.health == 0:
-                            self.game_over = True
+                        self.death_animation(objects)
                     elif obj.__class__ == "Seed":
                         self.score.change_score(obj.points)
                     elif obj.__class__ == "Wall":
@@ -120,6 +120,7 @@ class Pacman(pygame.sprite.Sprite):
                 self.queue_direction = 4
 
     def death_animation(self, objects):
+        self.ind_health -= 1
         self.sounds[1].play()
         self.direction = 0
         self.change_image("up1")
