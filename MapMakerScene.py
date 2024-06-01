@@ -107,10 +107,10 @@ class WallButton:
         self.in_clr = (254, 255, 89)
         self.act_clr = (178, 255, 89)
 
-    def draw(self, x, y, map_maker, screen=pygame.display.set_mode(size, pygame.RESIZABLE)):
+    def draw(self, x, y, map_maker, screen=pygame.display.set_mode(size, pygame.RESIZABLE), ):
         mouse = pygame.mouse.get_pos()
         c = pygame.mouse.get_pressed()
-        if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height and c[0]:
+        if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height and c[0] or map_maker.cur_fig == 'wall':
             pygame.draw.rect(screen, self.in_clr, (x, y, self.width, self.height), 5)
             wall = pygame.image.load('Sprites\walls\pacman_wall_solo.png')
             wall_rect = wall.get_rect(topleft=(x + self.width//2 - 25 // 2, y + self.height//2 - 25 // 2))
@@ -134,7 +134,7 @@ class SeedButton:
     def draw(self, x, y, map_maker, action=None, screen=pygame.display.set_mode(size, pygame.RESIZABLE)):
         mouse = pygame.mouse.get_pos()
         c = pygame.mouse.get_pressed()
-        if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height and c[0]:
+        if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height and c[0] or map_maker.cur_fig == 'seed':
             pygame.draw.rect(screen, self.in_clr, (x, y, self.width, self.height), 5)
             pygame.draw.circle(screen, (255, 255, 255), (x + self.width//2, y + self.height//2), 3)
             return 'seed'
@@ -154,7 +154,7 @@ class BigSeedButton:
     def draw(self, x, y, map_maker, screen=pygame.display.set_mode(size, pygame.RESIZABLE)):
         mouse = pygame.mouse.get_pos()
         c = pygame.mouse.get_pressed()
-        if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height and c[0]:
+        if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height and c[0] or map_maker.cur_fig == 'big_seed':
             pygame.draw.rect(screen, self.in_clr, (x, y, self.width, self.height), 5)
             pygame.draw.circle(screen, (255, 255, 255), (x + self.width//2, y + self.height//2), 7)
             return 'big_seed'
@@ -251,10 +251,19 @@ class Map:
                     wall.draw()
 
 
+def CreateNewMapFile():
+    fp = open('./Maps/temp_map.txt', 'w')
+    map = ('none ' * 25 + '\n') * 25
+    fp.write(map)
+    fp.close()
+
 class MapMakerScene:
-    def __init__(self, screen):
+    def __init__(self, screen, map):
+        if map == '':
+            CreateNewMapFile()
+
         self.screen = screen
-        self.mp = Map('map.txt')
+        self.mp = Map('./Maps/temp_map.txt')
         self.mp_mk = Map('map_maker.txt')
         self.cur_fig = 'wall'
 
@@ -265,8 +274,9 @@ class MapMakerScene:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.mp_mk.clear()
+                    self.mp_mk.replace(self.mp_mk.map)
                     game_over = True
-                    self.mp_mk.clear()
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     print(event)
                     x = (event.pos[0]) // 25
@@ -277,7 +287,7 @@ class MapMakerScene:
                         else:
                             self.mp_mk.map[x][y] = self.cur_fig
             w_but = WallButton(60, 60)
-            self.cur_fig = w_but.draw(100, 10, self, screen=self.screen)
+            self.cur_fig = w_but.draw(100, 10, self, screen=self.screen, )
             s_but = SeedButton(60, 60)
             self.cur_fig = s_but.draw(10, 10, self, screen=self.screen)
             save_but = SaveButton(width=100)
@@ -287,3 +297,11 @@ class MapMakerScene:
             self.mp_mk.replace(self.mp_mk.map)
             self.mp_mk.draw(self.screen)
             pygame.display.flip()
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode(size)
+    MapMaker = MapMakerScene(screen, '')
+    MapMaker.main_loop()
+
+main()
