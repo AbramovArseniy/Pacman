@@ -1,2 +1,7 @@
 venv
 .idea
+Objects/__pycache__/health.cpython-39.pyc
+Objects/__pycache__/scores.cpython-39.pyc
+Objects/__pycache__/textsprite.cpython-39.pyc
+__pycache__/func.cpython-39.pyc
+__pycache__/pacman.cpython-39.pyc
